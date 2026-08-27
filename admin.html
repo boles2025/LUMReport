@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم المسؤول - إدارة إحصائيات الطلاب</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="loginView" class="login-wrapper">
+  <div class="login-card">
+    <div class="login-icon"><i class="bi bi-shield-lock-fill"></i></div>
+    <h4>لوحة تحكم المسؤول</h4>
+    <p class="text-center text-muted small mb-4">الرجاء إدخال كلمة المرور للوصول إلى لوحة التحكم الكاملة</p>
+    <div id="loginError" class="alert alert-danger d-none py-2 small"></div>
+    <form id="loginForm" novalidate>
+      <div class="mb-3">
+        <label class="form-label fw-bold small">كلمة المرور / البريد الإلكتروني</label>
+        <div class="input-group">
+          <input type="password" id="passwordInput" class="form-control" placeholder="أدخل كلمة المرور (مثال: 8520)" required autocomplete="current-password">
+          <button type="button" class="btn btn-outline-secondary" id="togglePass" tabindex="-1"><i class="bi bi-eye" id="toggleIcon"></i></button>
+        </div>
+        <div class="form-text small">رمز الدخول الافتراضي: <code>8520</code></div>
+      </div>
+      <button type="submit" class="btn btn-primary-premium w-100 text-white" id="loginBtn">
+        <span id="loginBtnText"><i class="bi bi-box-arrow-in-right me-1"></i> تسجيل الدخول</span>
+        <span id="loginSpinner" class="spinner-border spinner-border-sm d-none"></span>
+      </button>
+    </form>
+    <div class="text-center mt-3">
+      <a href="index.html" class="small text-decoration-none"><i class="bi bi-arrow-right me-1"></i> العودة للوحة الإحصائيات العامة</a>
+    </div>
+  </div>
+</div>
+
+<!-- واجهة لوحة تحكم الأدمن -->
+<div id="adminView" class="admin-wrapper d-none">
+  <div class="container-fluid p-0">
+    <div class="row g-0">
+      
+      <!-- القائمة الجانبية للشاشات الكبيرة -->
+      <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+        <aside class="admin-sidebar">
+          <div class="admin-sidebar-header text-center mb-3">
+            <div class="lotus-logo-badge mb-2 mx-auto">
+              <i class="bi bi-flower1"></i>
+            </div>
+            <h5 class="lotus-title mb-1">جامعة اللوتس بالمنيا</h5>
+            <small class="opacity-75">لوحة تحكم المسؤول</small>
+          </div>
+          <nav class="admin-nav">
+            <button class="nav-link tab-btn-blue active" data-target="adm-overview"><i class="bi bi-speedometer2"></i> لوحة القيادة والملخص</button>
+            <button class="nav-link tab-btn-emerald" data-target="adm-daily"><i class="bi bi-file-earmark-bar-graph"></i> التقديمات اليومية</button>
+            <button class="nav-link tab-btn-purple" data-target="adm-depts"><i class="bi bi-building"></i> الأقسام الفرعية</button>
+            <button class="nav-link tab-btn-amber" data-target="adm-new"><i class="bi bi-person-plus"></i> انسحاب جدد</button>
+            <button class="nav-link tab-btn-rose" data-target="adm-old"><i class="bi bi-person-dash"></i> انسحاب قدامى</button>
+            <button class="nav-link tab-btn-cyan" data-target="adm-tools"><i class="bi bi-tools"></i> أدوات ونسخ احتياطي</button>
+            <hr class="my-2">
+            <button class="nav-link theme-toggle-btn" id="adminThemeToggleBtn"><i class="bi bi-sun-fill text-warning"></i> <span>الوضع الفاتح</span></button>
+            <a href="index.html" class="nav-link" target="_blank"><i class="bi bi-box-arrow-up-right"></i> عرض لوحة المستخدم</a>
+            <button class="nav-link text-danger" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</button>
+          </nav>
+        </aside>
+      </div>
+
+      <!-- قائمة الموبايل Offcanvas -->
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="adminOffcanvas" style="width:280px;">
+        <div class="offcanvas-header" style="background:linear-gradient(135deg,#1e3a5f,#1e4a7a);color:#fff;">
+          <h6 class="mb-0 fw-bold"><i class="bi bi-flower1 me-2 text-info"></i> جامعة اللوتس - المسؤول</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-2">
+          <nav class="admin-nav">
+            <button class="nav-link tab-btn-blue active" data-target="adm-overview"><i class="bi bi-speedometer2"></i> لوحة القيادة والملخص</button>
+            <button class="nav-link tab-btn-emerald" data-target="adm-daily"><i class="bi bi-file-earmark-bar-graph"></i> التقديمات اليومية</button>
+            <button class="nav-link tab-btn-purple" data-target="adm-depts"><i class="bi bi-building"></i> الأقسام الفرعية</button>
+            <button class="nav-link tab-btn-amber" data-target="adm-new"><i class="bi bi-person-plus"></i> انسحاب جدد</button>
+            <button class="nav-link tab-btn-rose" data-target="adm-old"><i class="bi bi-person-dash"></i> انسحاب قدامى</button>
+            <button class="nav-link tab-btn-cyan" data-target="adm-tools"><i class="bi bi-tools"></i> أدوات ونسخ احتياطي</button>
+            <hr>
+            <button class="nav-link theme-toggle-btn" id="adminMobileThemeToggleBtn"><i class="bi bi-sun-fill text-warning"></i> <span>الوضع الفاتح</span></button>
+            <a href="index.html" class="nav-link" target="_blank"><i class="bi bi-box-arrow-up-right"></i> عرض لوحة المستخدم</a>
+            <button class="nav-link text-danger" id="logoutBtn2"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- مساحة العمل الرئيسية -->
+      <div class="col-lg-9 col-xl-10">
+        
+        <!-- ترويسة الموبايل -->
+        <div class="d-lg-none d-flex align-items-center justify-content-between p-3 border-bottom sticky-top admin-mobile-header" style="top:0;z-index:1020;">
+          <div class="d-flex align-items-center gap-2">
+            <div class="lotus-logo-badge sm">
+              <i class="bi bi-flower1"></i>
+            </div>
+            <span class="fw-bold lotus-title">جامعة اللوتس بالمنيا</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm theme-toggle-btn" title="تبديل المظهر"><i class="bi bi-sun-fill text-warning"></i></button>
+            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#adminOffcanvas"><i class="bi bi-list fs-5"></i></button>
+          </div>
+        </div>
+
+        <div class="admin-content">
+          
+          <!-- شريط التاريخ وأزرار التحكم الموحدة للأدمن -->
+          <div class="date-bar mb-3">
+            <div class="date-input-wrap">
+              <label for="admGlobalDate" class="date-label"><i class="bi bi-calendar-event me-1"></i> التاريخ:</label>
+              <input type="date" id="admGlobalDate" class="form-control date-input">
+              <button class="btn btn-outline-custom btn-sm" id="admBtnCopyPrevModal" data-bs-toggle="modal" data-bs-target="#copyModal"><i class="bi bi-copy"></i> نسخ سابق</button>
+              <button class="btn btn-success-premium btn-sm" id="admBtnSaveAll"><i class="bi bi-cloud-arrow-up-fill"></i> حفظ الكل</button>
+            </div>
+            <div class="last-updated-wrap">
+              <span class="last-updated" id="admGlobalLastUpdated"><i class="bi bi-clock"></i> —</span>
+            </div>
+          </div>
+
+          <!-- 1. لوحة القيادة والملخص العام (Overview) -->
+          <section id="adm-overview" class="adm-section">
+            <div class="admin-page-title"><i class="bi bi-speedometer2"></i> لوحة القيادة وملخص اليوم</div>
+            
+            <div class="kpi-grid">
+              <div class="kpi-card blue">
+                <div>
+                  <div class="label">إجمالي التقديمات</div>
+                  <div class="value" id="admKpiDaily">0</div>
+                  <div class="sub-info">طلبات اليوم المعتمدة</div>
+                </div>
+                <div class="icon-box"><i class="bi bi-people-fill"></i></div>
+              </div>
+              <div class="kpi-card amber">
+                <div>
+                  <div class="label">انسحاب جدد</div>
+                  <div class="value" id="admKpiNew">0</div>
+                  <div class="sub-info">ملفات انسحاب الجدد</div>
+                </div>
+                <div class="icon-box"><i class="bi bi-person-plus-fill"></i></div>
+              </div>
+              <div class="kpi-card rose">
+                <div>
+                  <div class="label">انسحاب قدامى</div>
+                  <div class="value" id="admKpiOld">0</div>
+                  <div class="sub-info">ملفات انسحاب القدامى</div>
+                </div>
+                <div class="icon-box"><i class="bi bi-person-dash-fill"></i></div>
+              </div>
+              <div class="kpi-card green">
+                <div>
+                  <div class="label">الصافي الفعلي</div>
+                  <div class="value" id="admKpiNet">0</div>
+                  <div class="sub-info" id="admKpiRate">معدل الانسحاب: 0%</div>
+                </div>
+                <div class="icon-box"><i class="bi bi-award-fill"></i></div>
+              </div>
+            </div>
+
+            <!-- جدول الملخص السريع -->
+            <div class="card-premium">
+              <div class="card-header-premium">
+                <h5><i class="bi bi-table"></i> ملخص الإحصائيات لجميع الكليات</h5>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-custom btn-sm" id="admExportExcelBtn"><i class="bi bi-file-earmark-excel me-1"></i> تصدير Excel</button>
+                  <button class="btn btn-primary-premium btn-sm" id="admQuickSaveBtn"><i class="bi bi-check2-circle me-1"></i> حفظ الإحصائيات</button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-premium mb-0">
+                  <thead>
+                    <tr>
+                      <th>الكلية</th>
+                      <th class="text-center">المتقدمين الجدد</th>
+                      <th class="text-center">انسحاب جدد</th>
+                      <th class="text-center">انسحاب قدامى</th>
+                      <th class="text-center">إجمالي الانسحاب</th>
+                      <th class="text-center">الصافي</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admOverviewTableBody"></tbody>
+                  <tfoot>
+                    <tr class="total-row">
+                      <td>الإجمالي العام</td>
+                      <td class="text-center" id="admTotDaily">0</td>
+                      <td class="text-center" id="admTotNew">0</td>
+                      <td class="text-center" id="admTotOld">0</td>
+                      <td class="text-center" id="admTotW">0</td>
+                      <td class="text-center" id="admTotNet">0</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. قسم التقديمات اليومية -->
+          <section id="adm-daily" class="adm-section d-none">
+            <div class="admin-page-title"><i class="bi bi-file-earmark-bar-graph"></i> إدخال التقديمات اليومية</div>
+            <div id="admDailyLoading" class="loading-overlay d-none"><div class="spinner-border"></div><span>جاري التحميل...</span></div>
+            <div class="card-premium">
+              <div class="card-header-premium">
+                <h5><i class="bi bi-pencil-square"></i> أعداد المتقدمين حسب الكلية</h5>
+                <span class="badge bg-primary px-3 py-2 fs-6">الإجمالي: <span id="admDailyLiveTotal">0</span></span>
+              </div>
+              <div class="p-3" id="admDailyForm"></div>
+              <div class="p-3 border-top d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary-premium text-white" id="saveDailyBtn"><i class="bi bi-check2-circle me-1"></i> حفظ التقديمات اليومية</button>
+                <button class="btn btn-outline-custom" id="zeroDailyBtn"><i class="bi bi-x-circle"></i> تصفير الحقول</button>
+                <button class="btn btn-outline-secondary" id="reloadDailyBtn"><i class="bi bi-arrow-clockwise"></i> إعادة تحميل</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. قسم الأقسام الفرعية -->
+          <section id="adm-depts" class="adm-section d-none">
+            <div class="admin-page-title"><i class="bi bi-building"></i> إدخال الأقسام الفرعية</div>
+            <div id="admDeptsLoading" class="loading-overlay d-none"><div class="spinner-border"></div><span>جاري التحميل...</span></div>
+            <div id="admDeptsForm" class="row g-3"></div>
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+              <button class="btn btn-primary-premium text-white" id="saveDeptsBtn"><i class="bi bi-check2-circle me-1"></i> حفظ بيانات الأقسام</button>
+              <button class="btn btn-outline-custom" id="zeroDeptsBtn"><i class="bi bi-x-circle"></i> تصفير الحقول</button>
+              <button class="btn btn-outline-secondary" id="reloadDeptsBtn"><i class="bi bi-arrow-clockwise"></i> إعادة تحميل</button>
+            </div>
+          </section>
+
+          <!-- 4. قسم انسحاب جدد -->
+          <section id="adm-new" class="adm-section d-none">
+            <div class="admin-page-title"><i class="bi bi-person-plus"></i> إدخال انسحاب الطلاب الجدد</div>
+            <div id="admNewLoading" class="loading-overlay d-none"><div class="spinner-border"></div><span>جاري التحميل...</span></div>
+            <div class="card-premium">
+              <div class="card-header-premium">
+                <h5><i class="bi bi-pencil-square"></i> أعداد انسحاب الطلاب الجدد</h5>
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6">الإجمالي: <span id="admNewLiveTotal">0</span></span>
+              </div>
+              <div class="p-3" id="admNewForm"></div>
+              <div class="p-3 border-top d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary-premium text-white" id="saveNewBtn"><i class="bi bi-check2-circle me-1"></i> حفظ انسحاب الجدد</button>
+                <button class="btn btn-outline-custom" id="zeroNewBtn"><i class="bi bi-x-circle"></i> تصفير الحقول</button>
+                <button class="btn btn-outline-secondary" id="reloadNewBtn"><i class="bi bi-arrow-clockwise"></i> إعادة تحميل</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. قسم انسحاب قدامى -->
+          <section id="adm-old" class="adm-section d-none">
+            <div class="admin-page-title"><i class="bi bi-person-dash"></i> إدخال انسحاب الطلاب القدامى</div>
+            <div id="admOldLoading" class="loading-overlay d-none"><div class="spinner-border"></div><span>جاري التحميل...</span></div>
+            <div class="card-premium">
+              <div class="card-header-premium">
+                <h5><i class="bi bi-pencil-square"></i> أعداد انسحاب الطلاب القدامى</h5>
+                <span class="badge bg-danger px-3 py-2 fs-6">الإجمالي: <span id="admOldLiveTotal">0</span></span>
+              </div>
+              <div class="p-3" id="admOldForm"></div>
+              <div class="p-3 border-top d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary-premium text-white" id="saveOldBtn"><i class="bi bi-check2-circle me-1"></i> حفظ انسحاب القدامى</button>
+                <button class="btn btn-outline-custom" id="zeroOldBtn"><i class="bi bi-x-circle"></i> تصفير الحقول</button>
+                <button class="btn btn-outline-secondary" id="reloadOldBtn"><i class="bi bi-arrow-clockwise"></i> إعادة تحميل</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 6. قسم الأدوات والنسخ الاحتياطي -->
+          <section id="adm-tools" class="adm-section d-none">
+            <div class="admin-page-title"><i class="bi bi-tools"></i> أدوات النظام والنسخ الاحتياطي</div>
+            <div class="row g-3">
+              
+              <!-- تصدير نسخة احتياطية -->
+              <div class="col-md-6">
+                <div class="card-premium h-100 p-4">
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box" style="width:48px;height:48px;background:#eff6ff;color:#2563eb;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                      <i class="bi bi-cloud-arrow-down-fill"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-bold mb-0">تصدير نسخة احتياطية (JSON)</h5>
+                      <small class="text-muted">حفظ قاعدة البيانات بالكامل على جهازك</small>
+                    </div>
+                  </div>
+                  <p class="text-muted small">قم بتنزيل ملف يحتوي على كافة الإحصائيات والتواريخ المحفوظة لضمان عدم فقدان أي بيانات.</p>
+                  <button class="btn btn-primary-premium mt-auto" id="btnExportBackup"><i class="bi bi-download me-1"></i> تنزيل النسخة الاحتياطية</button>
+                </div>
+              </div>
+
+              <!-- استعادة نسخة احتياطية -->
+              <div class="col-md-6">
+                <div class="card-premium h-100 p-4">
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box" style="width:48px;height:48px;background:#fef3c7;color:#d97706;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                      <i class="bi bi-cloud-arrow-up-fill"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-bold mb-0">استعادة نسخة احتياطية (JSON)</h5>
+                      <small class="text-muted">رفع ملف نسخة احتياطية سابقة</small>
+                    </div>
+                  </div>
+                  <p class="text-muted small">استرجع كافة البيانات والتواريخ من ملف JSON سبق تصديره.</p>
+                  <input type="file" id="importBackupFile" accept=".json" class="form-control mb-3">
+                  <button class="btn btn-warning fw-bold text-dark mt-auto" id="btnImportBackup"><i class="bi bi-upload me-1"></i> استعادة البيانات الآن</button>
+                </div>
+              </div>
+
+              <!-- حذف بيانات يوم محدد -->
+              <div class="col-md-6">
+                <div class="card-premium h-100 p-4 border-danger">
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box" style="width:48px;height:48px;background:#fee2e2;color:#ef4444;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                      <i class="bi bi-trash3-fill"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-bold mb-0 text-danger">حذف بيانات التاريخ المحدد</h5>
+                      <small class="text-muted">حذف إحصائيات يوم من قاعدة البيانات</small>
+                    </div>
+                  </div>
+                  <p class="text-muted small">سيتم حذف كافة إحصائيات اليوم المحدد في شريط التاريخ أعلى الشاشة.</p>
+                  <button class="btn btn-outline-danger fw-bold mt-auto" id="btnDeleteDateModal" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="bi bi-trash3 me-1"></i> حذف بيانات هذا التاريخ</button>
+                </div>
+              </div>
+
+              <!-- تفريغ شامل للحقول -->
+              <div class="col-md-6">
+                <div class="card-premium h-100 p-4">
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box" style="width:48px;height:48px;background:#f1f5f9;color:#64748b;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                      <i class="bi bi-eraser-fill"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-bold mb-0">تصفير جميع حقول الإدخال</h5>
+                      <small class="text-muted">تفريغ الحقول للشاشة الحالية</small>
+                    </div>
+                  </div>
+                  <p class="text-muted small">إعادة تعيين كافة الأرقام في النموذج الحالي إلى الصفر لإعادة الإدخال من جديد.</p>
+                  <button class="btn btn-outline-secondary fw-bold mt-auto" id="btnZeroAllCurrent"><i class="bi bi-arrow-counterclockwise me-1"></i> تصفير جميع الحقول</button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+        
+        <footer class="app-footer mt-4">
+          <div class="container">تصميم <strong>مهندس بولس سمير</strong> &mdash; لوحة تحكم المسؤول الجامعي</div>
+        </footer>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال: نسخ بيانات من تاريخ سابق -->
+<div class="modal fade" id="copyModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-copy me-2 text-primary"></i> نسخ بيانات من تاريخ سابق</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">اختر التاريخ الذي ترغب في استيراد أرقامه وتعبئتها في تاريخ اليوم الحالي لتعديل الفروقات فقط:</p>
+        <div class="mb-3">
+          <label class="form-label fw-bold small">التاريخ المصدر:</label>
+          <input type="date" id="copySourceDate" class="form-control">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <button type="button" class="btn btn-primary-premium" id="btnConfirmCopy"><i class="bi bi-check-lg me-1"></i> نسخ البيانات إلى اليوم</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال: تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title text-white"><i class="bi bi-exclamation-octagon-fill me-2"></i> تأكيد حذف بيانات التاريخ</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="fw-bold text-danger mb-2">تحذير: هذا الإجراء نهائي ولا يمكن التراجع عنه!</p>
+        <p class="small text-muted mb-0">هل أنت متأكد من رغبتك في حذف كافة بيانات وإحصائيات يوم (<span id="deleteDateTarget" class="fw-bold text-dark"></span>)؟</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmDelete"><i class="bi bi-trash3-fill me-1"></i> نعم، احذف البيانات</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- توست التنبيهات -->
+<div class="toast-container">
+  <div id="appToast" class="toast align-items-center border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body fw-bold small" id="toastMsg">—</div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/data.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة إحصائيات الطلاب - University Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ترويسة الطباعة الرسمية A4 -->
+<div class="print-header">
+  <div class="print-header-inner">
+    <div class="print-header-right">
+      <h2 class="print-uni-title"><i class="bi bi-flower1 me-1"></i> جامعة اللوتس بالمنيا</h2>
+      <h3 id="printStatName" class="print-stat-title">جدول إحصائيات الكليات (التقديم وسحب الملفات)</h3>
+    </div>
+    <div class="print-header-left">
+      <div id="printDate" class="print-meta-item"><strong>تاريخ الإحصائية:</strong> <span>—</span></div>
+      <div id="printGeneratedAt" class="print-meta-item"><strong>تاريخ الاستخراج:</strong> <span>—</span></div>
+    </div>
+  </div>
+  <hr class="print-divider">
+</div>
+
+<header class="app-header">
+  <div class="container-fluid px-3 px-lg-4">
+    <div class="d-flex align-items-center justify-content-between py-3 flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-3">
+        <div class="lotus-logo-badge">
+          <i class="bi bi-flower1"></i>
+        </div>
+        <div>
+          <h1 class="lotus-title">جامعة اللوتس بالمنيا</h1>
+          <div class="subtitle"><i class="bi bi-bar-chart-line me-1"></i> نظام إحصائيات ومتابعة شؤون الطلاب</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="live-status-dot" title="النظام متصل ويستقبل التحديثات اللحظية"><span class="live-pulse"></span></div>
+        <button class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold theme-toggle-btn" id="themeToggleBtn" title="تبديل الوضع الداكن / الفاتح">
+          <i class="bi bi-sun-fill text-warning"></i> <span class="d-none d-sm-inline">الوضع الفاتح</span>
+        </button>
+        <button class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold" id="printReportBtn" title="طباعة التقرير أو حفظه كـ PDF"><i class="bi bi-printer me-1"></i> طباعة</button>
+        <button class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold" id="exportGlobalExcelBtn" title="تصدير بيانات اليوم إلى Excel"><i class="bi bi-file-earmark-excel me-1"></i> تصدير Excel</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs-wrapper">
+  <div class="container-fluid px-3 px-lg-4">
+    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+      <li class="nav-item" role="presentation"><button class="nav-link tab-btn-blue active" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button" role="tab"><i class="bi bi-grid-1x2-fill"></i> الملخص العام</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link tab-btn-emerald" data-bs-toggle="tab" data-bs-target="#tab-daily" type="button" role="tab"><i class="bi bi-file-earmark-bar-graph"></i> التقديمات اليومية</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link tab-btn-purple" data-bs-toggle="tab" data-bs-target="#tab-depts" type="button" role="tab"><i class="bi bi-building"></i> الكليات والأقسام</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link tab-btn-amber" data-bs-toggle="tab" data-bs-target="#tab-new" type="button" role="tab"><i class="bi bi-person-plus"></i> انسحاب جدد</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link tab-btn-rose" data-bs-toggle="tab" data-bs-target="#tab-old" type="button" role="tab"><i class="bi bi-person-dash"></i> انسحاب قدامى</button></li>
+    </ul>
+  </div>
+</div>
+
+<main class="container-fluid px-3 px-lg-4 py-4">
+  
+  <!-- شريط التاريخ الموحد -->
+  <div class="date-bar mb-3">
+    <div class="date-input-wrap">
+      <label for="globalDate" class="date-label"><i class="bi bi-calendar-event me-1"></i> التاريخ:</label>
+      <input type="date" id="globalDate" class="form-control date-input">
+      <button class="btn btn-outline-custom btn-sm btn-refresh" id="btnRefreshData" title="تحديث البيانات">
+        <i class="bi bi-arrow-clockwise"></i> <span>تحديث</span>
+      </button>
+    </div>
+    <div class="last-updated-wrap">
+      <span class="last-updated" id="globalLastUpdated"><i class="bi bi-clock"></i> —</span>
+    </div>
+  </div>
+
+  <div class="tab-content">
+    
+    <!-- 1. تبويب الملخص العام -->
+    <div class="tab-pane fade show active" id="tab-overview" role="tabpanel">
+      <div id="overviewLoading" class="loading-overlay d-none"><div class="spinner-border" role="status"></div><span>جاري تحميل التقرير الإحصائي...</span></div>
+      <div id="overviewError" class="alert alert-danger d-none py-2 small"><i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ أثناء تحميل البيانات، يرجى المحاولة مرة أخرى.</div>
+      
+      <div id="overviewContent">
+        <!-- جدول المقارنة الشامل لجميع الكليات -->
+        <div class="card-premium">
+          <div class="card-header-premium">
+            <h5 class="mb-0"><i class="bi bi-table text-primary"></i> جدول إحصائيات الكليات (التقديم وسحب الملفات)</h5>
+            <button class="btn btn-outline-custom btn-sm" id="exportMasterTableBtn"><i class="bi bi-download me-1"></i> تصدير الجدول Excel</button>
+          </div>
+          <div class="table-responsive master-table-responsive">
+            <table class="table table-premium mb-0 master-overview-table">
+              <thead>
+                <tr>
+                  <th class="col-college">الكلية</th>
+                  <th class="text-center col-stat-app" style="background:#eff6ff;color:#1e40af;"><i class="bi bi-people-fill me-1 d-none d-md-inline"></i> المتقدمين الجدد</th>
+                  <th class="text-center col-stat-new" style="background:#fffbeb;color:#92400e;"><i class="bi bi-person-plus-fill me-1 d-none d-md-inline"></i> انسحاب جدد</th>
+                  <th class="text-center col-stat-old" style="background:#fef2f2;color:#991b1b;"><i class="bi bi-person-dash-fill me-1 d-none d-md-inline"></i> انسحاب قدامى</th>
+                </tr>
+              </thead>
+              <tbody id="overviewTableBody"></tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td class="fw-bold col-college">الإجمالي العام</td>
+                  <td class="text-center" id="ovTotDaily" style="background:#eff6ff;color:#1e40af;">0</td>
+                  <td class="text-center" id="ovTotNew" style="background:#fffbeb;color:#92400e;">0</td>
+                  <td class="text-center" id="ovTotOld" style="background:#fef2f2;color:#991b1b;">0</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. تبويب التقديمات اليومية -->
+    <div class="tab-pane fade" id="tab-daily" role="tabpanel">
+      <div id="dailyLoading" class="loading-overlay d-none"><div class="spinner-border" role="status"></div><span>جاري تحميل الإحصائيات...</span></div>
+      <div id="dailyError" class="alert alert-danger d-none py-2 small"><i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ أثناء تحميل البيانات، يرجى المحاولة مرة أخرى.</div>
+      <div id="dailyEmpty" class="card-premium state-card d-none"><i class="bi bi-inbox"></i><p>لا توجد بيانات مسجلة لهذا التاريخ</p></div>
+      <div id="dailyContent" class="d-none">
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="card-premium h-100">
+              <div class="card-header-premium">
+                <h5><i class="bi bi-table"></i> عدد المتقدمين حسب الكلية</h5>
+                <span class="badge bg-primary px-3 py-2 fs-6">الإجمالي: <span id="dailyTotal">0</span></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-premium mb-0">
+                  <thead>
+                    <tr>
+                      <th>الكلية</th>
+                      <th class="text-center" style="background:#eff6ff;color:#1e40af;min-width:140px;"><i class="bi bi-people-fill me-1"></i> عدد المتقدمين</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dailyTableBody"></tbody>
+                  <tfoot>
+                    <tr class="total-row">
+                      <td>الإجمالي</td>
+                      <td class="text-center" id="dailyTableTotal" style="background:#eff6ff;color:#1e40af;font-size:1.15rem;">0</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card-premium h-100">
+              <div class="card-header-premium"><h5><i class="bi bi-bar-chart-fill"></i> الرسم البياني للتقديمات</h5></div>
+              <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. تبويب الكليات والأقسام -->
+    <div class="tab-pane fade" id="tab-depts" role="tabpanel">
+      <div id="deptsLoading" class="loading-overlay d-none"><div class="spinner-border" role="status"></div><span>جاري تحميل الإحصائيات...</span></div>
+      <div id="deptsError" class="alert alert-danger d-none py-2 small"><i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ أثناء تحميل البيانات، يرجى المحاولة مرة أخرى.</div>
+      <div id="deptsEmpty" class="card-premium state-card d-none"><i class="bi bi-inbox"></i><p>لا توجد بيانات مسجلة لهذا التاريخ</p></div>
+      <div id="deptsContent" class="d-none">
+        <div class="row g-3" id="deptsGrid"></div>
+      </div>
+    </div>
+
+    <!-- 4. تبويب انسحاب جدد -->
+    <div class="tab-pane fade" id="tab-new" role="tabpanel">
+      <div id="newLoading" class="loading-overlay d-none"><div class="spinner-border" role="status"></div><span>جاري تحميل الإحصائيات...</span></div>
+      <div id="newError" class="alert alert-danger d-none py-2 small"><i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ أثناء تحميل البيانات، يرجى المحاولة مرة أخرى.</div>
+      <div id="newEmpty" class="card-premium state-card d-none"><i class="bi bi-inbox"></i><p>لا توجد بيانات مسجلة لهذا التاريخ</p></div>
+      <div id="newContent" class="d-none">
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="card-premium h-100">
+              <div class="card-header-premium">
+                <h5><i class="bi bi-table"></i> إحصائيات انسحاب جدد حسب الكلية</h5>
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6">الإجمالي: <span id="newTotal">0</span></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-premium mb-0">
+                  <thead>
+                    <tr>
+                      <th>الكلية</th>
+                      <th class="text-center">عدد المنسحبين</th>
+                      <th class="text-center">النسبة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="newTableBody"></tbody>
+                  <tfoot>
+                    <tr class="total-row">
+                      <td>الإجمالي</td>
+                      <td class="text-center" id="newTableTotal">0</td>
+                      <td class="text-center">100%</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card-premium h-100">
+              <div class="card-header-premium"><h5><i class="bi bi-bar-chart-fill"></i> رسم بياني لانسحاب الجدد</h5></div>
+              <div class="chart-wrap"><canvas id="newChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. تبويب انسحاب قدامى -->
+    <div class="tab-pane fade" id="tab-old" role="tabpanel">
+      <div id="oldLoading" class="loading-overlay d-none"><div class="spinner-border" role="status"></div><span>جاري تحميل الإحصائيات...</span></div>
+      <div id="oldError" class="alert alert-danger d-none py-2 small"><i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ أثناء تحميل البيانات، يرجى المحاولة مرة أخرى.</div>
+      <div id="oldEmpty" class="card-premium state-card d-none"><i class="bi bi-inbox"></i><p>لا توجد بيانات مسجلة لهذا التاريخ</p></div>
+      <div id="oldContent" class="d-none">
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="card-premium h-100">
+              <div class="card-header-premium">
+                <h5><i class="bi bi-table"></i> إحصائيات انسحاب قدامى حسب الكلية</h5>
+                <span class="badge bg-danger px-3 py-2 fs-6">الإجمالي: <span id="oldTotal">0</span></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-premium mb-0">
+                  <thead>
+                    <tr>
+                      <th>الكلية</th>
+                      <th class="text-center">عدد المنسحبين</th>
+                      <th class="text-center">النسبة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="oldTableBody"></tbody>
+                  <tfoot>
+                    <tr class="total-row">
+                      <td>الإجمالي</td>
+                      <td class="text-center" id="oldTableTotal">0</td>
+                      <td class="text-center">100%</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card-premium h-100">
+              <div class="card-header-premium"><h5><i class="bi bi-bar-chart-fill"></i> رسم بياني لانسحاب القدامى</h5></div>
+              <div class="chart-wrap"><canvas id="oldChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- تذييل وتوقيع الطباعة الرسمي A4 -->
+  <div class="print-footer">
+    <div class="print-footer-inner">
+      <div class="print-signature-box">
+        <div class="sig-role">مدير شئون الطلاب</div>
+        <div class="sig-name">مهندس بولس سمير</div>
+        <div class="sig-line">التوقيع: ............................</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="container">تصميم <strong>مهندس بولس سمير</strong> &mdash; نظام إحصائيات الطلاب الجامعي &copy; 2026</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/data.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
